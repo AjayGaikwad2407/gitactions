@@ -1,0 +1,36 @@
+name: .NET
+
+on:
+  push:
+    branches: master
+  pull_request:
+    branches: master
+
+jobs:
+  build:
+
+    runs-on: windows
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Package Restore
+      uses: actions/setup-dotnet@v1
+      working-directory: ./app
+      shell: cmd
+      script: 
+      with:
+        dotnet-version: 5.0.x
+
+    - name: Build
+      working-directory: 
+      run: |
+        bat "set MSBuildSDKsPath=\"C:\\Program Files\\dotnet\\sdk\\2.1.4\\Sdks\""
+        bat "${msbuild} ${csharpProjectName}.sln /p:DeleteExistingFiles=True;Configuration=Release"
+
+    - name: Unit Test
+      run: bat "dotnet test --logger trx;LogFileName=result.xml"
+
+
+    - name: Park into Nuget
+      run: dotnet test --no-build --verbosity normal
